@@ -1,5 +1,7 @@
 import express from 'express';
 import dbConnect from './config/dbConnect.js';
+import livro from './models/Livro.js';
+import e from 'express';
 
 const conect = await dbConnect();
 
@@ -11,34 +13,27 @@ conect.once("open", () => {
     console.log("Conexão com o banco feita com sucesso !!!!!");
 })
 
-
 const app = express();
 
 app.use(express.json());
 
-const livros = [
-    { id: 1, titulo: 'O Senhor dos Anéis - A Sociedade do Anel' },
-    { id: 2, titulo: 'O Senhor dos Anéis - As Duas Torres' },
-    { id: 3, titulo: 'O Senhor dos Anéis - O Retorno do Rei' },
-    { id: 4, titulo: 'O Senhor dos Anéis - O Retorno do Rei' },
-    { id: 5, titulo: 'O Senhor dos Anéis - O Retorno do Rei' },
-    { id: 6, titulo: 'O Senhor dos Anéis - O Retorno do Rei' },
-    { id: 7, titulo: 'O Senhor dos Anéis - O Retorno do Rei' },
-];
-
-
-function buscaLivro(id) {
-    return livros.findIndex(livro => {
-        return livro.id === Number(id)
-});
-}
 
 app.get('/', (req, res) => {
     res.status(200).send('Curso de Node.js com Express');
 });
 
-app.get('/livros', (req, res) => {
-    res.status(200).json(livros);
+app.get('/livros', async (req, res) => {
+    try{
+        const listBooks = await livro.find().exec();
+        
+        if(!listBooks.length){
+            res.status(404).send('Nenhum livro encontrado');
+        }
+        res.status(200).json(listBooks);
+    }catch(err){
+        console.error(err.message);
+        res.status(500).json({error: err.message});
+    }
 });
 
 app.get("/livros/:id", (req, res) => {
@@ -47,10 +42,14 @@ app.get("/livros/:id", (req, res) => {
     res.status(200).json(livroSelecionado);
 });
 
-app.post('/add_livros', (req, res) => {
-    // Lógica para adicionar um novo livro
-   livros.push(req.body);
-    res.status(201).send('Livro adicionado com sucesso!');
+app.post('/add_livros', async (req, res) => {
+    try {
+        const novoLivro = await livro.create(req.body);
+        res.status(201).json(novoLivro);
+    } catch (error) {
+        console.error('Erro ao adicionar livro:', error);
+        res.status(500).json({ error: "Erro ao adicionar livro" });
+    }
 });
 
 app.put('/livros/:id', (req, res) => {
