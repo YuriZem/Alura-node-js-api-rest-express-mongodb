@@ -2,6 +2,8 @@ import express from 'express';
 
 const app = express();
 
+app.use(express.json());
+
 const livros = [
     { id: 1, titulo: 'O Senhor dos Anéis - A Sociedade do Anel' },
     { id: 2, titulo: 'O Senhor dos Anéis - As Duas Torres' },
@@ -20,4 +22,11 @@ app.get('/livros', (req, res) => {
     res.status(200).json(livros);
 });
 
+app.post('/add_livros', (req, res) => {
+    // Lógica para adicionar um novo livro
+   livros.push(req.body);
+    res.status(201).send('Livro adicionado com sucesso!');
+});
+
 export default app;
+
