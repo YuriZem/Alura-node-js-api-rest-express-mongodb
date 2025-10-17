@@ -41,5 +41,17 @@ app.post('/add_livros', (req, res) => {
     res.status(201).send('Livro adicionado com sucesso!');
 });
 
+app.put('/livros/:id', (req, res) => {
+    const index = buscaLivro(req.params.id);
+    livros[index].titulo = req.body.titulo;
+    res.status(200).send('Livro atualizado com sucesso!');
+});
+
+app.delete('/livros/:id', (req, res) => {
+    const index = buscaLivro(req.params.id);
+    livros.splice(index, 1);
+    res.status(200).send('Livro removido com sucesso!');
+});
+
 export default app;
 
