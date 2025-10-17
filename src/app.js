@@ -14,12 +14,25 @@ const livros = [
     { id: 7, titulo: 'O Senhor dos Anéis - O Retorno do Rei' },
 ];
 
+
+function buscaLivro(id) {
+    return livros.findIndex(livro => {
+        return livro.id === Number(id)
+});
+}
+
 app.get('/', (req, res) => {
     res.status(200).send('Curso de Node.js com Express');
 });
 
 app.get('/livros', (req, res) => {
     res.status(200).json(livros);
+});
+
+app.get("/livros/:id", (req, res) => {
+    const index = buscaLivro(req.params.id);
+    const livroSelecionado = livros[index];
+    res.status(200).json(livroSelecionado);
 });
 
 app.post('/add_livros', (req, res) => {
