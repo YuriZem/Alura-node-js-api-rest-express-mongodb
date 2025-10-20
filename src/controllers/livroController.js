@@ -1,7 +1,7 @@
+import { autor } from "../models/Autor.js";
 import livro from "../models/Livro.js";
 
 class LivroController {
-
   static async listarLivros (req, res) {
     try{
       const listBooks = await livro.find().exec();
@@ -13,9 +13,12 @@ class LivroController {
   }
 
   static async add_book (req, res){
+    const newBook = req.body;
     try{
-      const newBook = await livro.create(req.body);
-      res.status(201).json(newBook);
+      const autorEncontrado = await autor.findById(newBook.autor);
+      const livroCompleto = {...newBook, autor: {...autorEncontrado._doc}};
+      const livroCriado = await livro.create(livroCompleto);
+      res.status(201).json('Livro Criado com sucesso');
     }catch(err){
       console.error('Erro ao adicionar livro:', err);
       res.status(500).json({ error: "Erro ao adicionar livro" });
@@ -28,8 +31,8 @@ class LivroController {
       await livro.findByIdAndUpdate(id,req.body);
       res.status(200).json({message: "Livro atualizado com sucesso"});
     } catch (error) {
-     console.error('Erro ao atualizar livro:', error);
-     res.status(500).json({ error: "Erro ao atualizar livro" }); 
+        console.error('Erro ao atualizar livro:', error);
+        res.status(500).json({ error: "Erro ao atualizar livro" }); 
     }
   };
 
@@ -39,8 +42,8 @@ class LivroController {
       const bookfound = await livro.findById(id).exec();
       res.status(200).json(bookfound);
     } catch (error) {
-      console.error('Erro ao buscar livro por ID:', error);
-      res.status(500).json({ error: "Erro ao buscar livro por ID" });
+        console.error('Erro ao buscar livro por ID:', error);
+        res.status(500).json({ error: "Erro ao buscar livro por ID" });
     }
   };
 
@@ -50,8 +53,18 @@ class LivroController {
       await livro.findByIdAndDelete(id);
       res.status(200).json({message: "Livro removido com sucesso"});
     } catch (error) {
-      console.error('Erro ao remover livro:', error);
-      res.status(500).json({ error: "Erro ao remover livro" });
+        console.error('Erro ao remover livro:', error);
+        res.status(500).json({ error: "Erro ao remover livro" });
+    }
+  };
+  static async searchForEditora (req, res){
+    const editora = req.query.editora;
+    try {
+      const bookfound = await livro.find({'editora': editora});
+      res.status(200).json(bookfound);
+    } catch (error) {
+        console.error('Erro ao encontrar livro:', error);
+        res.status(500).json({ error: "Erro ao encontrar livro" });
     }
   };
 
