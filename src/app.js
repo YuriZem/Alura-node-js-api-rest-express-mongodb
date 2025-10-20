@@ -1,7 +1,6 @@
 import express from 'express';
 import dbConnect from './config/dbConnect.js';
-import livro from './models/Livro.js';
-import e from 'express';
+import routes from './routes/index.js'; 
 
 const conect = await dbConnect();
 
@@ -14,42 +13,12 @@ conect.once("open", () => {
 })
 
 const app = express();
-
-app.use(express.json());
-
-
-app.get('/', (req, res) => {
-    res.status(200).send('Curso de Node.js com Express');
-});
-
-app.get('/livros', async (req, res) => {
-    try{
-        const listBooks = await livro.find().exec();
-        
-        if(!listBooks.length){
-            res.status(404).send('Nenhum livro encontrado');
-        }
-        res.status(200).json(listBooks);
-    }catch(err){
-        console.error(err.message);
-        res.status(500).json({error: err.message});
-    }
-});
+routes(app);
 
 app.get("/livros/:id", (req, res) => {
     const index = buscaLivro(req.params.id);
     const livroSelecionado = livros[index];
     res.status(200).json(livroSelecionado);
-});
-
-app.post('/add_livros', async (req, res) => {
-    try {
-        const novoLivro = await livro.create(req.body);
-        res.status(201).json(novoLivro);
-    } catch (error) {
-        console.error('Erro ao adicionar livro:', error);
-        res.status(500).json({ error: "Erro ao adicionar livro" });
-    }
 });
 
 app.put('/livros/:id', (req, res) => {
